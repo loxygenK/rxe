@@ -1,0 +1,12 @@
+cmd:
+  test:
+    args:
+      type:
+        choice: [core, frontend, types]
+        short: t
+        multi: true
+      snapshot:
+        flag:
+
+    run:
+      pnpm --filter=${type} test ${snapshot?=-u}
