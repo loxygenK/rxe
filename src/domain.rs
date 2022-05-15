@@ -52,10 +52,21 @@ pub struct Command {
     pub args: Vec<Argument>,
     pub run: String
 }
+impl Command {
+    pub fn get_argument(&self, name: &str) -> Option<&Argument> {
+        self.args.iter().find(|c| c.name == name)
+    }
+}
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Config {
     pub command: Vec<Command>
+}
+
+impl Config {
+    pub fn get_command(&self, name: &str) -> Option<&Command> {
+        self.command.iter().find(|c| c.name == name)
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
