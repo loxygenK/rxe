@@ -73,30 +73,26 @@ mod tests {
     fn accept_correct_yaml_content() {
         let config: Config = serde_yaml::from_str::<DeserializedConfig>(include_str!("../tests/acceptable_config.yaml")).unwrap().into();
 
-        assert_eq!(
-            config,
-            Config {
-                command: vec![
-                    Command {
-                        name: "test".to_string(),
-                        args: vec![
-                            Argument {
-                                name: "type".to_string(),
-                                constraint: Constraint::Choice(vec!["core".to_string(), "frontend".to_string(), "types".to_string()]),
-                                short_hand: Some("t".to_string()),
-                                multi: true
-                            },
-                            Argument {
-                                name: "snapshot".to_string(),
-                                constraint: Constraint::Flag,
-                                short_hand: None,
-                                multi: false
-                            }
-                        ],
-                        run: "pnpm --filter=${type} test ${snapshot?=-u}".to_string()
-                    }
-                ]
+        let expected: Vec<Argument> = vec![
+            Argument {
+                name: "type".to_string(),
+                constraint: Constraint::Choice(vec!["core".to_string(), "frontend".to_string(), "types".to_string()]),
+                short_hand: Some("t".to_string()),
+                multi: true
+            },
+            Argument {
+                name: "snapshot".to_string(),
+                constraint: Constraint::Flag,
+                short_hand: None,
+                multi: false
             }
-        )
+        ];
+
+        let cmd = config.command.get(0).expect("command length was 0");
+        for arg in &cmd.args {
+            let expected_arg = expected.iter().find(|e| e.name == arg.name).expect(&format!("Extraneous argument: {}", arg.name));
+
+            assert_eq!(arg, expected_arg);
+        }
     }
 }
