@@ -3,7 +3,7 @@
 
 Easily customizable command runner made with Rust 🦀
 
-**WIP: Please check `progress` section for the progress of this project!**
+**WIP: Please check [`progress`](https://github.com/loxygenK/rxe#-progress) section for the progress of this project!**
 
 
 ### 📝 Examples
@@ -29,8 +29,8 @@ $ rxe test --type core --snapshot
 ```
 
 ### 🏃 Progress
-- [ ] Parsing configuration
-- [ ] Parsing the command argument
+- [X] Parsing configuration
+- [X] Parsing the command argument
 - [ ] Running the script
   - [ ] Fill the placeholder
     - [ ] Parse place holder
