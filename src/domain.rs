@@ -57,3 +57,17 @@ pub struct Command {
 pub struct Config {
     pub command: Vec<Command>
 }
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum ArgumentValue {
+    Text(String),
+    Flag(bool),
+    Number(f64),
+    Choice(String)
+}
+
+#[derive(Debug, PartialEq)]
+pub struct InputtedCommand {
+    pub name: String,
+    pub args: HashMap<String, ArgumentValue>
+}
