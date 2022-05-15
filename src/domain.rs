@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 
+#[derive(Debug, PartialEq, Eq)]
 pub enum ConstraintValidateError {
-    ConstriantUnmet,
-    AmbiguosChoice
+    ConstraintUnmet,
+    AmbiguosChoice,
+    FlagValue
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -13,17 +15,17 @@ pub enum Constraint {
     Choice(Vec<String>)
 }
 impl Constraint {
-    pub fn valid(&self, raw_str: &impl ToString) -> Result<(), ConstraintValidateError> {
+    pub fn convert_value(&self, raw_str: &impl ToString) -> Result<ArgumentValue, ConstraintValidateError> {
         let raw_str = raw_str.to_string();
 
         match self {
-            Constraint::Text => Ok(()),
-            Constraint::Flag => Ok(()),
+            Constraint::Text => Ok(ArgumentValue::Text(raw_str)),
+            Constraint::Flag => Err(ConstraintValidateError::FlagValue),
             Constraint::Number => {
-                if raw_str.parse::<f64>().is_ok() {
-                    Ok(())
+                if let Ok(num) = raw_str.parse::<f64>() {
+                    Ok(ArgumentValue::Number(num))
                 } else {
-                    Err(ConstraintValidateError::ConstriantUnmet)
+                    Err(ConstraintValidateError::ConstraintUnmet)
                 }
             },
             Constraint::Choice(candicates) => {
@@ -32,7 +34,7 @@ impl Constraint {
                     return Err(ConstraintValidateError::AmbiguosChoice);
                 }
 
-                Ok(())
+                Ok(ArgumentValue::Choice(matched[0].to_owned()))
             }
         }
     }
