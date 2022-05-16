@@ -1,5 +1,7 @@
 # 🧑‍💻 `rxe`
-[![Rust](https://github.com/loxygenK/rxe/actions/workflows/rust.yml/badge.svg)](https://github.com/loxygenK/rxe/actions/workflows/rust.yml)
+[![Clippy check](https://github.com/loxygenK/rxe/actions/workflows/clippy.yml/badge.svg?branch=main)](https://github.com/loxygenK/rxe/actions/workflows/clippy.yml)
+[![Test with coverage](https://github.com/loxygenK/rxe/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/loxygenK/rxe/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/loxygenK/rxe/branch/main/graph/badge.svg?token=bCOvChidDc)](https://codecov.io/gh/loxygenK/rxe)
 
 Easily customizable command runner made with Rust 🦀
 
