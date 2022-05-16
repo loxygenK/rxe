@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use crate::domain::ArgumentValue;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ConstraintValidateError {
@@ -38,49 +38,4 @@ impl Constraint {
             }
         }
     }
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub struct Argument {
-    pub name: String,
-    pub short_hand: Option<String>,
-    pub constraint: Constraint,
-    pub multi: bool
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub struct Command {
-    pub name: String,
-    pub args: Vec<Argument>,
-    pub run: String
-}
-impl Command {
-    pub fn get_argument(&self, name: &str) -> Option<&Argument> {
-        self.args.iter().find(|c| c.name == name)
-    }
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub struct Config {
-    pub command: Vec<Command>
-}
-
-impl Config {
-    pub fn get_command(&self, name: &str) -> Option<&Command> {
-        self.command.iter().find(|c| c.name == name)
-    }
-}
-
-#[derive(Debug, PartialEq, Clone)]
-pub enum ArgumentValue {
-    Text(String),
-    Flag(bool),
-    Number(f64),
-    Choice(String)
-}
-
-#[derive(Debug, PartialEq)]
-pub struct InputtedCommand {
-    pub name: String,
-    pub args: HashMap<String, ArgumentValue>
 }
