@@ -18,9 +18,10 @@ compile_error!("This crate cannot be build for the platform which is not either 
 pub type ExitCode = u8;
 
 pub enum ExecuteError {
-    PreparationFailure(Option<Error>)
+    UnknownEnvironment,
+    PreparationFailure(Error),
 }
 
 pub trait CommandRunner {
-    fn run_command(&self, line: &str) -> Result<(), ExecuteError>;
+    fn run_command(&self, line: &str) -> Result<Option<i32>, ExecuteError>;
 }
