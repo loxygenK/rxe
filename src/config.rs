@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
 
-use crate::domain::{Constraint, Command, Argument, Config};
+use crate::domain::{Constraint, Command, Argument, Config, ArgumentValue};
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -12,13 +12,14 @@ pub enum DeserializedConstraint {
     Number,
     Choice(Vec<String>)
 }
-impl Into<Constraint> for DeserializedConstraint {
-    fn into(self) -> Constraint {
-        match self {
+
+impl From<DeserializedConstraint> for Constraint {
+    fn from(desr: DeserializedConstraint) -> Self {
+        match desr {
             DeserializedConstraint::Text => Constraint::Text,
             DeserializedConstraint::Flag => Constraint::Flag,
             DeserializedConstraint::Number => Constraint::Number,
-            DeserializedConstraint::Choice(v) => Constraint::Choice(v.clone())
+            DeserializedConstraint::Choice(v) => Constraint::Choice(v)
         }
     }
 }
@@ -32,9 +33,9 @@ pub struct DeserializedArgument {
     #[serde(default)]
     multi: bool
 }
-impl Into<Argument> for (String, DeserializedArgument) {
-    fn into(self) -> Argument {
-        let (name, arg) = self;
+impl From<(String, DeserializedArgument)> for Argument {
+    fn from(desr: (String, DeserializedArgument)) -> Argument {
+        let (name, arg) = desr;
 
         Argument {name, short_hand: arg.short, constraint: arg.constraint.into(), multi: arg.multi }
     }
@@ -45,9 +46,9 @@ pub struct DeserializedCommand {
     args: HashMap<String, DeserializedArgument>,
     run: String
 }
-impl Into<Command> for (String, DeserializedCommand) {
-    fn into(self) -> Command {
-        let (name, cmd) = self;
+impl From<(String, DeserializedCommand)> for Command {
+    fn from(desr: (String, DeserializedCommand)) -> Command {
+        let (name, cmd) = desr;
 
         Command { name, args: cmd.args.into_iter().map(Into::into).collect(), run: cmd.run }
     }
@@ -57,9 +58,9 @@ impl Into<Command> for (String, DeserializedCommand) {
 pub struct DeserializedConfig {
     cmd: HashMap<String, DeserializedCommand>
 }
-impl Into<Config> for DeserializedConfig {
-    fn into(self) -> Config {
-        Config { command: self.cmd.into_iter().map(Into::into).collect() }
+impl From<DeserializedConfig> for Config {
+    fn from(desr: DeserializedConfig) -> Config {
+        Config { command: desr.cmd.into_iter().map(Into::into).collect() }
     }
 }
 

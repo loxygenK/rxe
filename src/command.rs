@@ -54,8 +54,8 @@ impl<'a> CommandParser<'a> {
                 return Err(ParseError::MalformedLine);
             }
 
-            let applicable_option = option.as_ref().or(expected_arg.as_ref()).ok_or(ParseError::MalformedLine)?;
-            let arg = self.cmd.get_argument(&applicable_option)
+            let applicable_option = option.as_ref().or_else(|| expected_arg.as_ref()).ok_or(ParseError::MalformedLine)?;
+            let arg = self.cmd.get_argument(applicable_option)
                 .ok_or_else(|| panic!("WTF: '{}' existed in the status, but not in the command", &applicable_option))?;
             let status = self.args_status.get_mut(applicable_option).ok_or(ParseError::ArgumentNotExist)?;
 
@@ -106,10 +106,10 @@ impl<'a> CommandParser<'a> {
 
     fn parse_option(&self, str: impl ToString) -> Result<Option<String>, ParseError> {
         let str = str.to_string();
-        let arg_name = str.trim_start_matches("-");
+        let arg_name = str.trim_start_matches('-');
         let trimed_dashes = str.len() - arg_name.len();
 
-        if trimed_dashes != 0 && arg_name.len() == 0 {
+        if trimed_dashes != 0 && arg_name.is_empty() {
             return Err(ParseError::MalformedLine);
         }
 
