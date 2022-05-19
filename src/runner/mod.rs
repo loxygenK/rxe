@@ -1,27 +1,31 @@
-mod nix;
-mod win;
+mod tmpfile;
+mod run;
 
 use std::io::Error;
 
-#[cfg(target_family = "windows")]
-pub use win::*;
+use self::{run::run_command, tmpfile::create_script_file};
 
-#[cfg(target_family = "unix")]
-pub use nix::*;
-
-#[cfg(not(any(
-    target_family = "window",
-    target_family = "unix"
-)))]
-compile_error!("This crate cannot be build for the platform which is not either of windows or unix.");
-
-pub type ExitCode = u8;
+pub enum ExecuteStatus {
+    Exited(i32),
+    Terminated
+}
 
 pub enum ExecuteError {
     UnknownEnvironment,
-    PreparationFailure(Error),
+    PreparationFailure(Error)
 }
 
-pub trait CommandRunner {
-    fn run_command(&self, line: &str) -> Result<Option<i32>, ExecuteError>;
+#[cfg(target_family = "windows")]
+pub fn run_script(line: &str) -> Result<ExecuteStatus, ExecuteError> {
+    let script_file = create_script_file("ps1", line)?;
+    run_command("powershell", &["-File", &script_file])
 }
+
+#[cfg(target_family = "unix")]
+pub fn run_script(line: &str) -> Result<ExecuteStatus, ExecuteError> {
+    let script_file = create_script_file("sh", line)?;
+    run_command("sh", &["-c", &script_file])
+}
+
+#[cfg(not(any(target_family = "windows", target_family = "unix")))]
+compile_error!("This crate cannot be built for the environment which is not either of Windows or Unix family");
