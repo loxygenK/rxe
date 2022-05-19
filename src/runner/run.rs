@@ -6,9 +6,9 @@ pub fn run_command(program: &str, args: &[&str]) -> Result<ExecuteStatus, Execut
     let code = Command::new(program)
         .args(args)
         .spawn()
-        .map_err(|e| ExecuteError::PreparationFailure(e))?
+        .map_err(ExecuteError::PreparationFailure)?
         .wait()
-        .map_err(|e| ExecuteError::PreparationFailure(e))?
+        .map_err(ExecuteError::PreparationFailure)?
         .code();
 
     match code {

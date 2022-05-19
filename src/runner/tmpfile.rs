@@ -24,7 +24,7 @@ pub fn create_script_file(suffix: &str, line: &str) -> Result<String, ExecuteErr
         .map_err(ExecuteError::PreparationFailure)?;
 
     tmp_file.write_all(line.as_bytes())
-        .map_err(|e| ExecuteError::PreparationFailure(e))?;
+        .map_err(ExecuteError::PreparationFailure)?;
 
-    Ok(tmp_file_path.clone())
+    Ok(tmp_file_path)
 }
