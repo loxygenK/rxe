@@ -19,7 +19,7 @@ impl From<DeserializedConstraint> for Constraint {
             DeserializedConstraint::Text => Constraint::Text,
             DeserializedConstraint::Flag => Constraint::Flag,
             DeserializedConstraint::Number => Constraint::Number,
-            DeserializedConstraint::Choice(v) => Constraint::Choice(v.clone())
+            DeserializedConstraint::Choice(v) => Constraint::Choice(v)
         }
     }
 }
