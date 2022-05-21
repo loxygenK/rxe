@@ -1,32 +1,30 @@
+use std::fmt::{Debug, Display};
+
+use crate::{helper::{Identify, IdBox}, domain::ArgumentValue};
+
 pub mod choice;
 pub mod number;
 pub mod text;
 pub mod flag;
 
-pub enum ValueParseError<T> {
+pub trait SpecificParseError: Debug + Display + Identify {}
+
+#[derive(Debug, PartialEq)]
+pub enum ValueParseError {
     ValueRequired,
     ValueUneccesary,
-    ParseFailed(T)
+    ParseFailed(IdBox<dyn SpecificParseError>)
 }
 
 pub trait Constraint {
-    type Value;
-    type ParseError;
-
-    fn parse_value(&self, value: Option<&str>) -> Result<Self::Value, ValueParseError<Self::ParseError>>;
+    fn parse_value(&self, value: Option<&str>) -> Result<ArgumentValue, ValueParseError>;
 }
 
 pub trait ValuefulConstraint {
-    type Value;
-    type ParseError;
-
-    fn parse_value(&self, value: &str) -> Result<Self::Value, Self::ParseError>;
+    fn parse_value(&self, value: &str) -> Result<ArgumentValue, IdBox<dyn SpecificParseError>>;
 }
 impl<T: ValuefulConstraint> Constraint for T {
-    type Value = T::Value;
-    type ParseError = T::ParseError;
-
-    fn parse_value(&self, value: Option<&str>) -> Result<Self::Value, ValueParseError<Self::ParseError>> {
+    fn parse_value(&self, value: Option<&str>) -> Result<ArgumentValue, ValueParseError> {
         let value = value.ok_or(ValueParseError::ValueRequired)?;
 
         self.parse_value(value).map_err(ValueParseError::ParseFailed)

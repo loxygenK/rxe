@@ -1,16 +1,13 @@
-use crate::values::flag::FlagValue;
+use crate::domain::ArgumentValue;
 
 use super::{Constraint, ValueParseError};
 
 pub struct FlagConstraint;
 impl Constraint for FlagConstraint {
-    type Value = FlagValue;
-    type ParseError = ();
-
-    fn parse_value(&self, value: Option<&str>) -> Result<Self::Value, ValueParseError<Self::ParseError>> {
+    fn parse_value(&self, value: Option<&str>) -> Result<ArgumentValue, ValueParseError> {
         match value {
             Some(_) => Err(ValueParseError::ValueUneccesary),
-            None => Ok(FlagValue::new(true))
+            None => Ok(ArgumentValue::Flag(true))
         }
     }
 }
