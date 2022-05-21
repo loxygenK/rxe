@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
 
-use crate::domain::{Constraint, Command, Argument, Config, ArgumentValue};
+use crate::domain::{Constraints, Command, Argument, Config, ArgumentValue};
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -13,13 +13,13 @@ pub enum DeserializedConstraint {
     Choice(Vec<String>)
 }
 
-impl From<DeserializedConstraint> for Constraint {
+impl From<DeserializedConstraint> for Constraints {
     fn from(desr: DeserializedConstraint) -> Self {
         match desr {
-            DeserializedConstraint::Text => Constraint::Text,
-            DeserializedConstraint::Flag => Constraint::Flag,
-            DeserializedConstraint::Number => Constraint::Number,
-            DeserializedConstraint::Choice(v) => Constraint::Choice(v)
+            DeserializedConstraint::Text => Constraints::Text,
+            DeserializedConstraint::Flag => Constraints::Flag,
+            DeserializedConstraint::Number => Constraints::Number,
+            DeserializedConstraint::Choice(v) => Constraints::Choice(v)
         }
     }
 }
@@ -31,7 +31,7 @@ pub struct DeserializedArgument {
     short: Option<String>,
 
     #[serde(default)]
-    multi: bool
+    multi: bool,
 }
 impl From<(String, DeserializedArgument)> for Argument {
     fn from(desr: (String, DeserializedArgument)) -> Argument {
@@ -66,7 +66,7 @@ impl From<DeserializedConfig> for Config {
 
 #[cfg(test)]
 mod tests {
-    use crate::domain::{Config, Command, Constraint, Argument};
+    use crate::domain::{Config, Constraints, Argument};
 
     use super::DeserializedConfig;
 
@@ -77,13 +77,13 @@ mod tests {
         let expected: Vec<Argument> = vec![
             Argument {
                 name: "type".to_string(),
-                constraint: Constraint::Choice(vec!["core".to_string(), "frontend".to_string(), "types".to_string()]),
+                constraint: Constraints::Choice(vec!["core".to_string(), "frontend".to_string(), "types".to_string()]),
                 short_hand: Some("t".to_string()),
                 multi: true
             },
             Argument {
                 name: "snapshot".to_string(),
-                constraint: Constraint::Flag,
+                constraint: Constraints::Flag,
                 short_hand: None,
                 multi: false
             }
