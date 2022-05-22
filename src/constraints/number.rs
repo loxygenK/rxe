@@ -1,6 +1,6 @@
 use std::{num::ParseFloatError, fmt::Display};
 
-use crate::{domain::ArgumentValue, helper::{Identify, IdBox}};
+use crate::{domain::ArgumentValue, helper::identify::{Identify, IdBox}};
 
 use super::{ValuefulConstraint, SpecificParseError};
 

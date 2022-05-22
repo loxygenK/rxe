@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Display};
 
-use crate::{helper::{Identify, IdBox}, domain::ArgumentValue};
+use crate::{helper::identify::{Identify, IdBox}, domain::ArgumentValue};
 
 pub mod choice;
 pub mod number;
