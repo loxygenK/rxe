@@ -18,6 +18,7 @@ pub enum ValueParseError {
 
 pub trait Constraint {
     fn parse_value(&self, value: Option<&str>) -> Result<ArgumentValue, ValueParseError>;
+    fn fallback(&self) -> Result<ArgumentValue, ValueParseError>;
 }
 
 pub trait ValuefulConstraint {
@@ -28,5 +29,9 @@ impl<T: ValuefulConstraint> Constraint for T {
         let value = value.ok_or(ValueParseError::ValueRequired)?;
 
         self.parse_value(value).map_err(ValueParseError::ParseFailed)
+    }
+
+    fn fallback(&self) -> Result<ArgumentValue, ValueParseError> {
+        Err(ValueParseError::ValueRequired)
     }
 }

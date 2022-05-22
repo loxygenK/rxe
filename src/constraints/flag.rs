@@ -10,4 +10,8 @@ impl Constraint for FlagConstraint {
             None => Ok(ArgumentValue::Flag(true))
         }
     }
+
+    fn fallback(&self) -> Result<ArgumentValue, ValueParseError> {
+        Ok(ArgumentValue::Flag(false))
+    }
 }
