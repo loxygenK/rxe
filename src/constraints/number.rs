@@ -1,4 +1,4 @@
-use std::{num::ParseFloatError, fmt::Display};
+use std::fmt::Display;
 
 use crate::{domain::ArgumentValue, helper::identify::{Identify, IdBox}};
 
@@ -15,11 +15,8 @@ impl Identify for NumberParseError {
 }
 impl Display for NumberParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        if let NumberParseError::NumberParseFailure(orig) = self {
-            write!(f, "'{}' could not be parsed as the number (esp. f64)", orig)
-        } else {
-            unreachable!();
-        }
+        let NumberParseError::NumberParseFailure(orig) = self;
+        write!(f, "'{}' could not be parsed as the number (esp. f64)", orig)
     }
 }
 impl SpecificParseError for NumberParseError {}

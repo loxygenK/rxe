@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
 
-use crate::domain::{Constraints, Command, Argument, Config, ArgumentValue};
+use crate::domain::{Constraints, Command, Argument, Config};
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

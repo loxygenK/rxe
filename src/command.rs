@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::constraints::{ValueParseError, Constraint};
 use crate::domain::{Config, InputtedCommand, Argument, ArgumentValue, Command, Constraints};
-use crate::constraints::{text::TextConstraint, number::NumberConstraint, choice::ChoiceConstraint, SpecificParseError, flag::FlagConstraint};
+use crate::constraints::{text::TextConstraint, number::NumberConstraint, choice::ChoiceConstraint, flag::FlagConstraint};
 
 use crate::helper::replace_iter::ReplaceIter;
 
@@ -174,7 +174,7 @@ mod tests {
     use rstest::rstest;
 
     use crate::{domain::{Config, ArgumentValue}, config::DeserializedConfig};
-    use crate::constraints::{ValueParseError, choice::ChoiceError};
+    use crate::constraints::{ValueParseError};
 
     use super::{parse, ParseError};
 
