@@ -31,7 +31,6 @@ pub fn parse(config: & Config, line: & [impl ToString]) -> Result<InputtedComman
 struct CommandParser<'a> {
     cmd: &'a Command,
     arg: Vec<String>,
-    args_status: HashMap<String, ParseStatus>
 }
 impl<'a> CommandParser<'a> {
     fn new(config: &'a Config, line: &[impl ToString]) -> Result<Self, ParseError> {
@@ -42,11 +41,7 @@ impl<'a> CommandParser<'a> {
 
         let arg = line.collect();
 
-        let args_status = cmd.args.iter()
-            .map(|x| (x.name.clone(), ParseStatus::NotParsed))
-            .collect::<HashMap<String, ParseStatus>>();
-
-        Ok(Self { cmd, arg, args_status })
+        Ok(Self { cmd, arg })
     }
 
     fn parse(mut self) -> Result<InputtedCommand, ParseError> {
@@ -84,15 +79,7 @@ impl<'a> CommandParser<'a> {
         }
 
         let args = args_status.into_iter()
-            .map(|(k, v)| {
-                let value = match v {
-                    ParseStatus::Parsed(v) => v,
-                    _ => self.delegate_fallback(&self.get_argument_or_fail(&k).constraint)
-                        .map_err(ParseError::MalformedArgument)?
-                };
-
-                Ok((k, value))
-            })
+            .map(|(k, v)| self.unwrap_parse_status(&k, v).map(|v| (k, v)))
             .replace(
                 Err(ParseError::MalformedArgument(ValueParseError::ValueRequired)),
                 || Err(ParseError::InsufficientArgument)
@@ -103,6 +90,16 @@ impl<'a> CommandParser<'a> {
             name: self.cmd.name.to_owned(),
             args
         })
+    }
+
+    fn unwrap_parse_status(&self, arg_name: &str, status: ParseStatus) -> Result<ArgumentValue, ParseError> {
+        let arg = self.cmd.get_argument(arg_name)
+            .unwrap_or_else(|| panic!("WTF: '{}' existed in the status, but not in the command", &arg_name));
+
+        match status {
+            ParseStatus::Parsed(v) => Ok(v),
+            _ => self.delegate_fallback(&arg.constraint).map_err(ParseError::MalformedArgument)
+        }
     }
 
     fn delegate_parse(&self, constraint: &Constraints, value: Option<&str>) -> Result<ArgumentValue, ValueParseError> {
@@ -146,24 +143,6 @@ impl<'a> CommandParser<'a> {
                 .ok_or(ParseError::ArgumentNotExist)
         }
 
-    }
-
-    fn get_value_expected_arg(&self) -> Option<&Argument> {
-        let arg_name = self.args_status
-            .iter()
-            .find(|(_, v)| **v == ParseStatus::ExpectingNext)
-            .map(|(k, _)| k.to_string())?;
-
-        Some(self.get_argument_or_fail(&arg_name))
-    }
-
-    fn get_argument_or_fail(&self, arg_name: &str) -> &Argument {
-        self.cmd.get_argument(arg_name)
-            .unwrap_or_else(|| panic!("WTF: '{}' existed in the status, but not in the command", &arg_name))
-    }
-
-    fn get_mut_status(&mut self, key: &str) -> Result<&mut ParseStatus, ParseError> {
-        self.args_status.get_mut(key).ok_or(ParseError::ArgumentNotExist)
     }
 }
 
