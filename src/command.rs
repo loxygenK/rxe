@@ -42,8 +42,6 @@ impl<'a> CommandParser<'a> {
 
         let arg = line.collect();
 
-        println!("{:#?}", arg);
-
         let args_status = cmd.args.iter()
             .map(|x| (x.name.clone(), ParseStatus::NotParsed))
             .collect::<HashMap<String, ParseStatus>>();
@@ -84,8 +82,6 @@ impl<'a> CommandParser<'a> {
 
             *status = new_status;
         }
-
-        println!("Final status: {:#?}", args_status);
 
         let args = args_status.into_iter()
             .map(|(k, v)| {
