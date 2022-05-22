@@ -40,6 +40,8 @@ impl<'a> CommandParser<'a> {
 
         let arg = line.collect();
 
+        println!("{:#?}", arg);
+
         let args_status = cmd.args.iter()
             .map(|x| (x.name.clone(), ParseStatus::NotParsed))
             .collect::<HashMap<String, ParseStatus>>();
@@ -52,52 +54,55 @@ impl<'a> CommandParser<'a> {
             .map(|x| (x.name.clone(), ParseStatus::NotParsed))
             .collect::<HashMap<String, ParseStatus>>();
 
-        for arg_text in &self.arg {
-            let option = self.parse_option(arg_text)?;
-            let expected_arg = self.args_status
-                .iter()
-                .find(|(_, v)| **v == ParseStatus::ExpectingNext)
-                .map(|(k, _)| self.get_argument_or_fail(&k.to_string()));
+        let mut arg_iter = self.arg.iter().peekable();
+        while let Some(current) = arg_iter.next() {
+            let next = arg_iter.peek();
 
-            let focusing_arg = expected_arg.or(option).ok_or(ParseError::MalformedLine)?;
+            let current_opt = self.parse_option(current)?.ok_or(ParseError::MalformedLine)?;
+            let next_opt = next.map(|n| self.parse_option(*n)).transpose()?.flatten();
 
-            let status = args_status.get_mut(&focusing_arg.name).ok_or(ParseError::ArgumentNotExist)?;
+            let status = args_status.get_mut(&current_opt.name).ok_or(ParseError::ArgumentNotExist)?;
 
-            let new_status = match (option, expected_arg) {
-                (Some(opt), Some(parsing)) => {
-                    let parsed = self.delegate_parse(&parsing.constraint, None)
+            let new_status = match next_opt {
+                Some(_) => {
+                    let parsed = self.delegate_parse(&current_opt.constraint, None)
                         .map_err(ParseError::MalformedArgument)?;
 
                     ParseStatus::Parsed(parsed)
                 },
-                (Some(opt), None) => {
-                    ParseStatus::ExpectingNext
-                },
-                (None, Some(parsing)) => {
-                    let value = arg_text.trim_matches(|c| c == '"' || c == '\'');
-                    let parsed = self.delegate_parse(&parsing.constraint, Some(value))
+                None => {
+                    let parsed = self.delegate_parse(&current_opt.constraint, next.map(|s| s.as_str()))
                         .map_err(ParseError::MalformedArgument)?;
 
+                    arg_iter.next();
+
                     ParseStatus::Parsed(parsed)
-                },
-                (None, None) => {
-                    return Err(ParseError::MalformedLine);
                 }
             };
 
             *status = new_status;
         }
 
+        println!("Final status: {:#?}", args_status);
+
         let args = args_status.into_iter()
             .map(|(k, v)| {
                 let value = match v {
                     ParseStatus::Parsed(v) => v,
-                    _ => self.delegate_parse(&self.get_argument_or_fail(&k).constraint, None).map_err(ParseError::MalformedArgument)?
+                    _ => self.delegate_fallback(&self.get_argument_or_fail(&k).constraint)
+                        .map_err(ParseError::MalformedArgument)?
                 };
 
                 Ok((k, value))
             })
-            .collect::<Result<HashMap<_, _>, _>>()?;
+            .collect::<Result<HashMap<_, _>, _>>()
+            .map_err(|e| {
+                if e == ParseError::MalformedArgument(ValueParseError::ValueRequired) {
+                    ParseError::InsufficientArgument
+                } else {
+                    e
+                }
+            })?;
 
         Ok(InputtedCommand {
             name: self.cmd.name.to_owned(),
@@ -111,6 +116,15 @@ impl<'a> CommandParser<'a> {
             Constraints::Flag => FlagConstraint.parse_value(value),
             Constraints::Number => NumberConstraint.parse_value(value),
             Constraints::Choice(c) => ChoiceConstraint::new(c.to_vec()).parse_value(value)
+        }
+    }
+
+    fn delegate_fallback(&self, constraint: &Constraints) -> Result<ArgumentValue, ValueParseError> {
+        match constraint {
+            Constraints::Text => TextConstraint.fallback(),
+            Constraints::Flag => FlagConstraint.fallback(),
+            Constraints::Number => NumberConstraint.fallback(),
+            Constraints::Choice(c) => ChoiceConstraint::new(c.to_vec()).fallback()
         }
     }
 
@@ -165,7 +179,7 @@ mod tests {
     use rstest::rstest;
 
     use crate::{domain::{Config, ArgumentValue}, config::DeserializedConfig};
-    use crate::constraints::choice::ChoiceError;
+    use crate::constraints::{ValueParseError, choice::ChoiceError};
 
     use super::{parse, ParseError};
 
@@ -173,21 +187,21 @@ mod tests {
         case(
             vec!["test", "--type", "core", "--snapshot"],
             crate::map!(<String, ArgumentValue>;
-                "type".to_owned() => ArgumentValue::Choice("core".to_owned()),
+                "type".to_owned() => ArgumentValue::Text("core".to_owned()),
                 "snapshot".to_owned() => ArgumentValue::Flag(true),
             )
         ),
         case(
             vec!["test", "--snapshot", "--type", "core"],
             crate::map!(<String, ArgumentValue>;
-                "type".to_owned() => ArgumentValue::Choice("core".to_owned()),
+                "type".to_owned() => ArgumentValue::Text("core".to_owned()),
                 "snapshot".to_owned() => ArgumentValue::Flag(true),
             )
         ),
         case(
             vec!["test", "--type", "core"],
             crate::map!(<String, ArgumentValue>;
-                "type".to_owned() => ArgumentValue::Choice("core".to_owned()),
+                "type".to_owned() => ArgumentValue::Text("core".to_owned()),
                 "snapshot".to_owned() => ArgumentValue::Flag(false),
             )
         ),
@@ -206,11 +220,11 @@ mod tests {
         ),
         case(
             vec!["test", "--snapshot", "--type"],
-            ParseError::MalformedLine
+            ParseError::MalformedArgument(ValueParseError::ValueRequired)
         ),
         case(
             vec!["test", "--type", "--snapshot"],
-            ParseError::MalformedLine
+            ParseError::MalformedArgument(ValueParseError::ValueRequired)
         ),
     )]
     fn decline_incorrect_input(input: Vec<&str>, expected: ParseError) {
