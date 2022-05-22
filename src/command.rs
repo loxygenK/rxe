@@ -4,6 +4,8 @@ use crate::constraints::{ValueParseError, Constraint};
 use crate::domain::{Config, InputtedCommand, Argument, ArgumentValue, Command, Constraints};
 use crate::constraints::{text::TextConstraint, number::NumberConstraint, choice::ChoiceConstraint, SpecificParseError, flag::FlagConstraint};
 
+use crate::helper::ReplaceIter;
+
 #[derive(Debug, PartialEq)]
 pub enum ParseStatus {
     NotParsed,
@@ -95,14 +97,11 @@ impl<'a> CommandParser<'a> {
 
                 Ok((k, value))
             })
-            .collect::<Result<HashMap<_, _>, _>>()
-            .map_err(|e| {
-                if e == ParseError::MalformedArgument(ValueParseError::ValueRequired) {
-                    ParseError::InsufficientArgument
-                } else {
-                    e
-                }
-            })?;
+            .replace(
+                Err(ParseError::MalformedArgument(ValueParseError::ValueRequired)),
+                || Err(ParseError::InsufficientArgument)
+            )
+            .collect::<Result<HashMap<_, _>, _>>()?;
 
         Ok(InputtedCommand {
             name: self.cmd.name.to_owned(),
