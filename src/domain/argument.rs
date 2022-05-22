@@ -1,9 +1,9 @@
-use super::constraint::Constraint;
+use crate::domain::Constraints;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Argument {
     pub name: String,
     pub short_hand: Option<String>,
-    pub constraint: Constraint,
-    pub multi: bool
+    pub constraint: Constraints,
+    pub multi: bool,
 }
