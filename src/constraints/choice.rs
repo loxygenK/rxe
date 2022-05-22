@@ -48,3 +48,57 @@ impl ChoiceConstraint {
         Self { choices }
     }
 }
+
+#[cfg(test)]
+mod tests{
+    use rstest::{fixture, rstest};
+    use crate::{constraints::{Constraint, ValueParseError}, domain::ArgumentValue, helper::identify::Identify};
+
+    use super::{ChoiceConstraint, ChoiceError};
+
+    #[fixture]
+    pub fn constraint() -> ChoiceConstraint {
+        ChoiceConstraint::new(vec![
+            "ChoiceAAA".to_string(),
+            "ChoiceBBB".to_string(),
+            "DDD".to_string(),
+        ])
+    }
+
+    #[rstest(choice, expected,
+        case("ChoiceAAA", "ChoiceAAA"),
+        case("ChoiceA", "ChoiceAAA"),
+        case("ChoiceBB", "ChoiceBBB"),
+        case("D", "DDD"),
+    )]
+    fn accepts_and_strictify_choice(constraint: ChoiceConstraint, choice: &str, expected: &str) {
+        let parsed = constraint.parse_value(Some(choice));
+
+        let parsed = parsed.expect("Should success, but failed");
+        assert_eq!(parsed, ArgumentValue::Text(expected.to_string()))
+    }
+
+    #[rstest(choice, expected,
+        case("H", ChoiceError::NotIncluded("H".to_string())),
+        case("", ChoiceError::Ambiguous("".to_string())),
+        case("Choice", ChoiceError::Ambiguous("".to_string())),
+    )]
+    fn declines_not_choicable_value(constraint: ChoiceConstraint, choice: &str, expected: ChoiceError) {
+        let parsed = constraint.parse_value(Some(choice));
+
+        let error = parsed.expect_err("Should fail, but succeeded");
+        let error = match error {
+            ValueParseError::ParseFailed(f) => f,
+            _ => panic!("Unexpected error yielded: {:#?}", error)
+        };
+        assert_eq!(error.get_identifier(), expected.get_identifier())
+    }
+
+    #[rstest]
+    fn fail_fallback(constraint: ChoiceConstraint) {
+        let parsed = constraint.fallback();
+
+        let error = parsed.expect_err("Should fail, but succeeded");
+        assert_eq!(error, ValueParseError::ValueRequired)
+    }
+}

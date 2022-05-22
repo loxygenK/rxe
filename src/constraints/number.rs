@@ -30,3 +30,51 @@ impl ValuefulConstraint for NumberConstraint {
         }
     }
 }
+
+#[cfg(test)]
+mod tests{
+    use rstest::{fixture, rstest};
+    use crate::{constraints::{Constraint, ValueParseError}, domain::ArgumentValue, helper::identify::Identify};
+
+    use super::{NumberConstraint, NumberParseError};
+
+    #[rstest(input, expected,
+        case("123", 123f64),
+        case("123456789.87654321", 123456789.87654321f64),
+        case("-500", -500f64),
+        case("+123", 123f64),
+    )]
+    fn accepts_numeric_value(input: &str, expected: f64) {
+        let parsed = NumberConstraint.parse_value(Some(input));
+
+        let parsed = parsed.expect("Should success, but failed");
+        assert_eq!(parsed, ArgumentValue::Number(expected))
+    }
+
+    #[rstest(input,
+        case("Not numeric"),
+        case("0xA"),
+        case("A")
+    )]
+    fn declines_non_numeric_value(input: &str) {
+        let parsed = NumberConstraint.parse_value(Some(input));
+
+        let error = parsed.expect_err("Should fail, but succeeded");
+        let error = match error {
+            ValueParseError::ParseFailed(f) => f,
+            _ => panic!("Unexpected error yielded: {:#?}", error)
+        };
+        assert_eq!(
+            error.get_identifier(),
+            NumberParseError::NumberParseFailure(input.to_string()).get_identifier()
+        )
+    }
+
+    #[rstest]
+    fn fail_fallback() {
+        let parsed = NumberConstraint.fallback();
+
+        let error = parsed.expect_err("Should fail, but succeeded");
+        assert_eq!(error, ValueParseError::ValueRequired)
+    }
+}
