@@ -14,6 +14,8 @@ fn parse_first_placeholder(line: &str) -> Result<Option<Placeholder>, Placeholde
         Some(cap) => cap,
         None => return Ok(None)
     };
+    let range = cap.get(0).unwrap().range();
+    let prefix = &cap[1];
     let mut mat_args = cap[2].split('|');
 
     // SAFETY: Split iterator yields value at lease one;
@@ -30,7 +32,8 @@ fn parse_first_placeholder(line: &str) -> Result<Option<Placeholder>, Placeholde
         .collect::<Result<HashMap<_, _>, _>>()?;
 
     Ok(Some(Placeholder {
-        placeholder: cap[0].to_string(),
+        range,
+        prefix: prefix.to_string(),
         arg_name: arg_name.to_string(),
         args,
     }))
@@ -66,7 +69,8 @@ mod tests {
         assert_eq!(
             parsed,
             Placeholder {
-                placeholder: placeholder.to_string(),
+                range: 0..(placeholder.len()),
+                prefix: "".to_string(),
                 arg_name: arg_name.to_string(),
                 args: args.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect(),
             }
