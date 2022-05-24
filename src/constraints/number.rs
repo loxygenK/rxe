@@ -1,6 +1,6 @@
-use std::fmt::Display;
+use std::{fmt::Display, collections::HashMap};
 
-use crate::{domain::ArgumentValue, helper::identify::{Identify, IdBox}};
+use crate::{domain::ArgumentValue, helper::identify::{Identify, IdBox}, placeholder::PlaceholderParseError};
 
 use super::{ValuefulConstraint, SpecificParseError};
 
@@ -29,11 +29,18 @@ impl ValuefulConstraint for NumberConstraint {
             Err(_) => Err(IdBox::new(Box::new(NumberParseError::NumberParseFailure(value.to_owned()))))
         }
     }
+
+    fn fill_placeholder(&self, value: &ArgumentValue, _placeholder_args: &HashMap<String, String>) -> Result<String, PlaceholderParseError> {
+        match value {
+            ArgumentValue::Number(n) => Ok(n.to_string()),
+            _ => panic!("Unexpected ArgumentValue: {:#?}", value)
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests{
-    use rstest::{fixture, rstest};
+    use rstest::rstest;
     use crate::{constraints::{Constraint, ValueParseError}, domain::ArgumentValue, helper::identify::Identify};
 
     use super::{NumberConstraint, NumberParseError};

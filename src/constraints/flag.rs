@@ -1,4 +1,6 @@
-use crate::domain::ArgumentValue;
+use std::collections::HashMap;
+
+use crate::{domain::ArgumentValue, placeholder::PlaceholderParseError};
 
 use super::{Constraint, ValueParseError};
 
@@ -13,6 +15,28 @@ impl Constraint for FlagConstraint {
 
     fn fallback(&self) -> Result<ArgumentValue, ValueParseError> {
         Ok(ArgumentValue::Flag(false))
+    }
+
+    fn fill_placeholder(&self, value: &ArgumentValue, placeholder_args: &HashMap<String, String>) -> Result<String , PlaceholderParseError>{
+        let if_true = placeholder_args.get("true");
+        let if_false = placeholder_args.get("false");
+
+        if if_true.is_none() && if_false.is_none() {
+            return Err(PlaceholderParseError::InsufficientParameter("either left or right".to_string()))
+        }
+
+        let flag = match value {
+            ArgumentValue::Flag(f) => f,
+            _ => panic!("Unexpected ArgumentValue: {:#?}", value)
+        };
+
+        Ok(
+            if *flag {
+                if_true.unwrap_or(&"".to_string()).to_string()
+            } else {
+                if_false.unwrap_or(&"".to_string()).to_string()
+            }
+        )
     }
 }
 

@@ -1,4 +1,6 @@
-use crate::{domain::ArgumentValue, helper::identify::IdBox};
+use std::collections::HashMap;
+
+use crate::{domain::ArgumentValue, helper::identify::IdBox, placeholder::PlaceholderParseError};
 
 use super::{ValuefulConstraint, SpecificParseError};
 
@@ -6,6 +8,13 @@ pub struct TextConstraint;
 impl ValuefulConstraint for TextConstraint {
     fn parse_value(&self, value: &str) -> Result<ArgumentValue, IdBox<dyn SpecificParseError>> {
         Ok(ArgumentValue::Text(value.to_owned()))
+    }
+
+    fn fill_placeholder(&self, value: &ArgumentValue, _placeholder_args: &HashMap<String, String>) -> Result<String, PlaceholderParseError> {
+        match value {
+            ArgumentValue::Text(t) => Ok(t.to_string()),
+            _ => panic!("Unexpected ArgumentValue: {:#?}", value)
+        }
     }
 }
 
