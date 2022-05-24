@@ -1,4 +1,4 @@
-use std::{fmt::{Debug, Display}, collections::HashMap};
+use std::{fmt::{Debug, Display}, collections::HashMap, ops::Deref};
 
 use crate::{helper::identify::{Identify, IdBox}, domain::ArgumentValue, placeholder::PlaceholderParseError};
 
@@ -14,6 +14,17 @@ pub enum ValueParseError {
     ValueRequired,
     ValueUneccesary,
     ParseFailed(IdBox<dyn SpecificParseError>)
+}
+impl Display for ValueParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ValueParseError::ValueRequired => write!(f, "The value is required for the argument."),
+            ValueParseError::ValueUneccesary => write!(f, "The value of the argument should not be given."),
+            ValueParseError::ParseFailed(e) => {
+                write!(f, "The value was not appropriate: {}", e.deref())
+            }
+        }
+    }
 }
 
 pub trait Constraint {

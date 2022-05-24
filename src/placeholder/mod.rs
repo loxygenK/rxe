@@ -1,7 +1,7 @@
 mod parse;
 mod fill;
 
-use std::{collections::HashMap, ops::Range};
+use std::{collections::HashMap, ops::Range, fmt::Display};
 use crate::domain::ArgumentValue;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -10,6 +10,16 @@ pub enum PlaceholderParseError {
     MalformedParameter,
     InsufficientParameter(String),
     CorruptedDuringFill
+}
+impl Display for PlaceholderParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            PlaceholderParseError::NotExistingArgument => write!(f, "Not existing argument is used in the placeholder."),
+            PlaceholderParseError::MalformedParameter => write!(f, "The arguments in the placeholder is something wrong."),
+            PlaceholderParseError::InsufficientParameter(_) => write!(f, "Required argument(s) is not specified in the placeholder."),
+            PlaceholderParseError::CorruptedDuringFill => write!(f, "The text has been corrupted during fill. This is internal bug!"),
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
