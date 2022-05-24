@@ -96,6 +96,13 @@ impl From<DeserializedConfig> for Config {
     }
 }
 
+pub fn read_from_yaml(path: &str) -> Result<Config, ReadError> {
+    let content: Result<String, ReadError> = fs::read_to_string(path).map_err(Into::into);
+    let config: Result<DeserializedConfig, ReadError> = serde_yaml::from_str::<DeserializedConfig>(&content?).map_err(Into::into);
+
+    Ok(config?.into())
+}
+
 #[cfg(test)]
 mod tests {
     use crate::domain::{Config, Constraints, Argument};
