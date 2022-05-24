@@ -33,10 +33,11 @@ $ rxe test --type core --snapshot
 ### 🏃 Progress
 - [X] Parsing configuration
 - [X] Parsing the command argument
-- [ ] Running the script
-  - [ ] Fill the placeholder
-    - [ ] Parse place holder
-    - [ ] Replace the place holder
-  - [ ] Run the script
+- [X] Running the script
+  - [X] Fill the placeholder
+    - [X] Parse place holder
+    - [X] Replace the place holder
+  - [X] Run the script
+- [ ] Create a working entry point
 ---
 - [ ] Support short hand style (like `-t` for `--type`)

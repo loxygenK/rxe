@@ -1,6 +1,6 @@
-use std::fmt::Display;
+use std::{fmt::Display, collections::HashMap};
 
-use crate::{domain::ArgumentValue, helper::identify::{IdBox, Identify}};
+use crate::{domain::ArgumentValue, helper::identify::{IdBox, Identify}, placeholder::PlaceholderParseError};
 
 use super::{ValuefulConstraint, SpecificParseError};
 
@@ -41,6 +41,13 @@ impl ValuefulConstraint for ChoiceConstraint {
         }
 
         Ok(ArgumentValue::Text(matched[0].to_owned()))
+    }
+
+    fn fill_placeholder(&self, value: &ArgumentValue, _placeholder_args: &HashMap<String, String>) -> Result<String, PlaceholderParseError> {
+        match value {
+            ArgumentValue::Text(t) => Ok(t.to_string()),
+            _ => panic!("Unexpected ArgumentValue: {:#?}", value)
+        }
     }
 }
 impl ChoiceConstraint {

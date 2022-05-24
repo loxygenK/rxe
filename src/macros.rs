@@ -12,6 +12,18 @@ macro_rules! map {
             temp_map
         }
     };
+    () => {
+        HashMap::<_, _>::new()
+    };
+    ( $( $k:expr => $v:expr ), + $(,)? ) => {
+        {
+            let mut temp_map: HashMap<_, _> = HashMap::new();
+            $(
+                temp_map.insert($k, $v);
+            )*
+            temp_map
+        }
+    };
 }
 
 #[cfg(test)]

@@ -2,10 +2,11 @@ mod config;
 mod constraints;
 mod command;
 mod domain;
+mod helper;
 mod macros;
+mod placeholder;
 mod runner;
 mod util;
-pub mod helper;
 
 fn main() {
     println!("Hello, world!");
