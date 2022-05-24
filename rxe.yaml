@@ -1,0 +1,18 @@
+cmd:
+  run:
+    args:
+      release:
+        flag:
+      test:
+        flag:
+
+    run: |
+      cargo {test|true=t|false=r} {release|true=--release}
+
+  test:
+    args:
+      release:
+        flag:
+
+    run: |
+      rxe run --test {release|true=--release}

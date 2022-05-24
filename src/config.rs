@@ -1,8 +1,40 @@
 use std::collections::HashMap;
+use std::fmt::{Display, Formatter};
+use std::fs;
+use std::io::{self, ErrorKind, Read};
 
 use serde::{Serialize, Deserialize};
+use crate::command::ParseStatus::Parsed;
 
 use crate::domain::{Constraints, Command, Argument, Config};
+
+pub enum ReadError {
+    FileNotExist,
+    MalformedConfig(serde_yaml::Error),
+    IOError(io::Error)
+}
+impl From<io::Error> for ReadError {
+    fn from(e: io::Error) -> Self {
+        match e.kind() {
+            ErrorKind::NotFound => ReadError::FileNotExist,
+            _  => ReadError::IOError(e)
+        }
+    }
+}
+impl From<serde_yaml::Error> for ReadError {
+    fn from(e: serde_yaml::Error) -> Self {
+        ReadError::MalformedConfig(e)
+    }
+}
+impl Display for ReadError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ReadError::FileNotExist => write!(f, "The file not exist!"),
+            ReadError::MalformedConfig(e) => write!(f, "The config is malformed: {}", e),
+            ReadError::IOError(e) => write!(f, "Unexpected I/O Error occurred: {}", e)
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -62,6 +94,13 @@ impl From<DeserializedConfig> for Config {
     fn from(desr: DeserializedConfig) -> Config {
         Config { command: desr.cmd.into_iter().map(Into::into).collect() }
     }
+}
+
+pub fn read_from_yaml(path: &str) -> Result<Config, ReadError> {
+    let content: Result<String, ReadError> = fs::read_to_string(path).map_err(Into::into);
+    let config: Result<DeserializedConfig, ReadError> = serde_yaml::from_str::<DeserializedConfig>(&content?).map_err(Into::into);
+
+    Ok(config?.into())
 }
 
 #[cfg(test)]

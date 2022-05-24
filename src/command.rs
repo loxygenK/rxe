@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt::Display;
 
 use crate::constraints::{ValueParseError, Constraint};
 use crate::domain::{Config, InputtedCommand, Argument, ArgumentValue, Command, Constraints};
@@ -21,6 +22,20 @@ pub enum ParseError {
     InsufficientArgument,
     MalformedLine,
     MalformedArgument(ValueParseError),
+}
+impl Display for ParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let msg = match self {
+            ParseError::NoCommandSpecified => "No command is specified.".to_string(),
+            ParseError::CommandNotExist => "That command does not exist.".to_string(),
+            ParseError::ArgumentNotExist => "The argument that does not exist was specified.".to_string(),
+            ParseError::InsufficientArgument => "Required argument(s) is missing.".to_string(),
+            ParseError::MalformedLine => "The arguments is something wrong. (Perhaps you forgot to specify the value of the argument)".to_string(),
+            ParseError::MalformedArgument(e) => format!("The value of the argument is invalid: {}", e)
+        };
+
+        write!(f, "{}", msg)
+    }
 }
 
 pub fn parse(config: & Config, line: & [impl ToString]) -> Result<InputtedCommand, ParseError> {

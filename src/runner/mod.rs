@@ -1,7 +1,7 @@
 mod tmpfile;
 mod run;
 
-use std::io::Error;
+use std::{io::Error, fmt::Display};
 
 use self::{run::run_command, tmpfile::create_script_file};
 
@@ -14,6 +14,14 @@ pub enum ExecuteError {
     UnknownEnvironment,
     PreparationFailure(Error)
 }
+impl Display for ExecuteError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ExecuteError::UnknownEnvironment => write!(f, "The location to create temporal file could not be determined."),
+            ExecuteError::PreparationFailure(e) => write!(f, "Unexpected error occured during the preparation: {}", e)
+        }
+    }
+}
 
 #[cfg(target_family = "windows")]
 pub fn run_script(line: &str) -> Result<ExecuteStatus, ExecuteError> {
@@ -23,7 +31,10 @@ pub fn run_script(line: &str) -> Result<ExecuteStatus, ExecuteError> {
 
 #[cfg(target_family = "unix")]
 pub fn run_script(line: &str) -> Result<ExecuteStatus, ExecuteError> {
+    use std::{fs, os::unix::prelude::PermissionsExt};
+
     let script_file = create_script_file("sh", line)?;
+    fs::set_permissions(&script_file, fs::Permissions::from_mode(0o755)).map_err(ExecuteError::PreparationFailure)?;
     run_command("sh", &["-c", &script_file])
 }
 
