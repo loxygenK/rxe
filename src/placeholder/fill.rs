@@ -1,10 +1,11 @@
 use std::collections::HashMap;
+use std::ops::Range;
 
 use crate::{domain::ArgumentValue, constraints::{text::TextConstraint, Constraint, number::NumberConstraint, flag::FlagConstraint, choice::ChoiceConstraint}};
 
 use super::{Placeholder, PlaceholderParseError};
 
-pub fn fill_first_placeholder(original: &str, values: &HashMap<String, ArgumentValue>, placeholder: &Placeholder) -> Result<String, PlaceholderParseError> {
+pub(super) fn fill_first_placeholder(original: &str, values: &HashMap<String, ArgumentValue>, placeholder: &Placeholder) -> Result<(String, Range<usize>), PlaceholderParseError> {
     let original = original.to_owned();
     let value = values.get(&placeholder.arg_name).ok_or(PlaceholderParseError::NotExistingArgument)?;
 
@@ -19,9 +20,15 @@ pub fn fill_first_placeholder(original: &str, values: &HashMap<String, ArgumentV
         .as_bytes()
         .to_vec();
 
-    bytes.splice(placeholder.range.clone(), filling_value.as_bytes().to_vec());
+    bytes.splice(
+        placeholder.range.clone(),
+        format!("{}{}", placeholder.prefix, filling_value).as_bytes().to_vec()
+    );
 
-    String::from_utf8(bytes).map_err(|_| PlaceholderParseError::CorruptedDuringFill)
+    match String::from_utf8(bytes) {
+        Ok(t) => Ok((t, Range { start: placeholder.range.start, end: placeholder.range.start + filling_value.len() } )),
+        Err(_) => Err(PlaceholderParseError::CorruptedDuringFill)
+    }
 }
 
 #[cfg(test)]
@@ -56,6 +63,6 @@ mod tests {
             prefix: "".to_string(),
             args: placeholder_arg.unwrap_or_default().iter().map(|(k, v)| (k.to_string(), v.to_string())).collect()
         });
-        assert_eq!(filled, Ok(expected.to_string()))
+        assert_eq!(filled.map(|(s, r)| s), Ok(expected.to_string()))
     }
 }

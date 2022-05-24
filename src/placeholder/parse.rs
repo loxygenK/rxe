@@ -4,17 +4,18 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 
 use crate::domain::ArgumentValue;
+use crate::helper::range_shift::RangeShift;
 
 use super::{Placeholder, PlaceholderParseError};
 
-static PLACEHOLDER_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"(^|[^\\])\{(.+?)}").unwrap());
+static PLACEHOLDER_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"(^|[^\\]|\\\\)\{(.+?)}").unwrap());
 
-fn parse_first_placeholder(line: &str) -> Result<Option<Placeholder>, PlaceholderParseError> {
-    let cap = match PLACEHOLDER_REGEX.captures(line) {
+pub(super) fn parse_first_placeholder(line: &str, start: usize) -> Result<Option<Placeholder>, PlaceholderParseError> {
+    let cap = match PLACEHOLDER_REGEX.captures(&line[start..]) {
         Some(cap) => cap,
         None => return Ok(None)
     };
-    let range = cap.get(0).unwrap().range();
+    let range = cap.get(0).unwrap().range().shift(start);
     let prefix = &cap[1];
     let mut mat_args = cap[2].split('|');
 
@@ -62,7 +63,7 @@ mod tests {
         ),
     )]
     fn parses_unmalformed_placeholder(placeholder: &str, arg_name: &str, args: HashMap<&str, &str>) {
-        let parsed = parse_first_placeholder(placeholder)
+        let parsed = parse_first_placeholder(placeholder, 0)
             .expect("Should success, but failed")
             .expect("Placeholder should be found, but it couldn't be found");
 
@@ -82,7 +83,7 @@ mod tests {
         case("{args|namevalue}"),
     )]
     fn declines_malformed_placeholder(placeholder: &str) {
-        let error = parse_first_placeholder(placeholder)
+        let error = parse_first_placeholder(placeholder, 0)
             .expect_err("Should fail, but succeeded");
 
         assert_eq!(error, PlaceholderParseError::MalformedParameter);
@@ -92,9 +93,23 @@ mod tests {
         case(r"\{espaced} {should_be_found}"),
         case(r"{should_be_found} \{espaced}"),
         case(r"Something not \{espaced} but the placeholder that {should_be_found}"),
+        case(r"'\\' is not espaced, so it \\{should_be_found}"),
     )]
     fn can_find_appropriate_placeholder(placeholder: &str) {
-        let parsed = parse_first_placeholder(placeholder)
+        let parsed = parse_first_placeholder(placeholder, 0)
+            .expect("Should success, but failed")
+            .expect("Placeholder should be found, but it couldn't be found");
+
+        assert_eq!(parsed.arg_name, "should_be_found");
+    }
+
+
+    #[rstest(placeholder, index,
+        case(r"{should_be_found}", 0),
+        case(r"{espaced} {should_be_found}", 8),
+    )]
+    fn can_skip_to_the_selected_index(placeholder: &str, index: usize) {
+        let parsed = parse_first_placeholder(placeholder, index)
             .expect("Should success, but failed")
             .expect("Placeholder should be found, but it couldn't be found");
 
