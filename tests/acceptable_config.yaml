@@ -9,4 +9,4 @@ cmd:
         flag:
 
     run:
-      pnpm --filter=${type} test ${snapshot?=-u}
+      echo "Executing the test for {type} {snapshot|true=(with snapshot)}"
