@@ -2,19 +2,15 @@
 ![Header image (dark theme)](https://user-images.githubusercontent.com/55672846/170167458-9a03170c-0c7e-415d-b5d1-2a2172720780.png#gh-dark-mode-only)
 
 <p align="center">
-
-[![crates.io](https://img.shields.io/crates/v/rxe.svg)](https://crates.io/crates/rxe)
-[![Codecov](https://codecov.io/gh/loxygenK/rxe/branch/main/graph/badge.svg?token=bCOvChidDc)](https://codecov.io/gh/loxygenK/rxe)
-[![Clippy check](https://github.com/loxygenK/rxe/actions/workflows/clippy.yml/badge.svg?branch=main)](https://github.com/loxygenK/rxe/actions/workflows/clippy.yml)
-[![Test with coverage](https://github.com/loxygenK/rxe/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/loxygenK/rxe/actions/workflows/test.yml)
-[![Release](https://github.com/loxygenK/rxe/actions/workflows/release.yml/badge.svg)](https://github.com/loxygenK/rxe/actions/workflows/release.yml)
-
+  <a href="https://crates.io/crates/rxe"><img src="https://img.shields.io/crates/v/rxe.svg" alt="crates.io"></a>
+  <a href="https://codecov.io/gh/loxygenK/rxe"><img src="https://codecov.io/gh/loxygenK/rxe/branch/main/graph/badge.svg?token=bCOvChidDc" alt="Codecov"></a>
+  <a href="https://github.com/loxygenK/rxe/actions/workflows/clippy.yml"><img src="https://github.com/loxygenK/rxe/actions/workflows/clippy.yml/badge.svg?branch=main" alt="Clippy check"></a>
+  <a href="https://github.com/loxygenK/rxe/actions/workflows/test.yml"><img src="https://github.com/loxygenK/rxe/actions/workflows/test.yml/badge.svg?branch=main" alt="Test with coverage"></a>
+  <a href="https://github.com/loxygenK/rxe/actions/workflows/release.yml"><img src="https://github.com/loxygenK/rxe/actions/workflows/release.yml/badge.svg" alt="Release"></a>
 </p>
 
 <p align="center">
-
 Easily customizable command runner made with Rust 🦀
-
 </p>
 
 
@@ -22,7 +18,6 @@ Easily customizable command runner made with Rust 🦀
 
 Install by the following command:
 
-[![crates.io](https://img.shields.io/crates/v/rxe.svg)](https://crates.io/crates/rxe)
 ```bash
 cargo install rxe
 ```
