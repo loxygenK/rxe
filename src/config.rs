@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::fs;
-use std::io::{self, ErrorKind, Read};
+use std::io::{self, ErrorKind};
 
 use serde::{Serialize, Deserialize};
-use crate::command::ParseStatus::Parsed;
 
 use crate::domain::{Constraints, Command, Argument, Config};
 

@@ -10,7 +10,6 @@ use crate::helper::replace_iter::ReplaceIter;
 #[derive(Debug, PartialEq)]
 pub enum ParseStatus {
     NotParsed,
-    ExpectingNext,
     Parsed(ArgumentValue)
 }
 
@@ -59,7 +58,7 @@ impl<'a> CommandParser<'a> {
         Ok(Self { cmd, arg })
     }
 
-    fn parse(mut self) -> Result<InputtedCommand, ParseError> {
+    fn parse(self) -> Result<InputtedCommand, ParseError> {
         let mut args_status = self.cmd.args.iter()
             .map(|x| (x.name.clone(), ParseStatus::NotParsed))
             .collect::<HashMap<String, ParseStatus>>();

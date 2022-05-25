@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::ops::Range;
 
-use crate::{domain::ArgumentValue, constraints::{text::TextConstraint, Constraint, number::NumberConstraint, flag::FlagConstraint, choice::ChoiceConstraint}};
+use crate::{domain::ArgumentValue, constraints::{text::TextConstraint, Constraint, number::NumberConstraint, flag::FlagConstraint}};
 
 use super::{Placeholder, PlaceholderParseError};
 
@@ -10,10 +10,9 @@ pub(super) fn fill_first_placeholder(original: &str, values: &HashMap<String, Ar
     let value = values.get(&placeholder.arg_name).ok_or(PlaceholderParseError::NotExistingArgument)?;
 
     let filling_value = match value {
-        ArgumentValue::Text(t) => TextConstraint.fill_placeholder(value, &placeholder.args),
-        ArgumentValue::Number(t) => NumberConstraint.fill_placeholder(value, &placeholder.args),
-        ArgumentValue::Flag(t) => FlagConstraint.fill_placeholder(value, &placeholder.args),
-        ArgumentValue::Choice(t) => TextConstraint.fill_placeholder(value, &placeholder.args),
+        ArgumentValue::Text(_) => TextConstraint.fill_placeholder(value, &placeholder.args),
+        ArgumentValue::Number(_) => NumberConstraint.fill_placeholder(value, &placeholder.args),
+        ArgumentValue::Flag(_) => FlagConstraint.fill_placeholder(value, &placeholder.args),
     }?;
 
     let mut bytes = original
@@ -35,7 +34,7 @@ pub(super) fn fill_first_placeholder(original: &str, values: &HashMap<String, Ar
 mod tests {
     use rstest::rstest;
 
-    use std::{ops::Range, collections::HashMap};
+    use std::collections::HashMap;
 
     use crate::{map, domain::ArgumentValue};
 
@@ -55,7 +54,7 @@ mod tests {
     fn can_fill_placeholder(placeholder: &str, expected: &str, value: ArgumentValue, placeholder_arg: Option<HashMap<&str, &str>>) {
         let value_map = map!("fill".to_string() => value);
 
-        let blanket_start = (placeholder.find('_').unwrap());
+        let blanket_start = placeholder.find('_').unwrap();
 
         let filled = fill_first_placeholder(placeholder, &value_map, &Placeholder {
             range: blanket_start..(blanket_start + 4),
@@ -63,6 +62,6 @@ mod tests {
             prefix: "".to_string(),
             args: placeholder_arg.unwrap_or_default().iter().map(|(k, v)| (k.to_string(), v.to_string())).collect()
         });
-        assert_eq!(filled.map(|(s, r)| s), Ok(expected.to_string()))
+        assert_eq!(filled.map(|(s, _)| s), Ok(expected.to_string()))
     }
 }

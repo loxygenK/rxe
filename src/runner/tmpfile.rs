@@ -1,4 +1,4 @@
-use std::{fs::File, io::{Error, Write}, env, path::MAIN_SEPARATOR};
+use std::{fs::File, io::Write, env, path::MAIN_SEPARATOR};
 
 use crate::util::get_random_string;
 
