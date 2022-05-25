@@ -13,6 +13,7 @@ jobs:
         with:
           ref: "main"
           fetch-depth: 2
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Check diff (files)
         id: version-check
@@ -28,7 +29,7 @@ jobs:
         run: |
           git config user.name loxygenK
           git config user.email me@loxygen.dev
-          git tag ${{ steps.version-check.outputs.ver }}
+          git tags ${{ steps.version-check.outputs.ver }}
           git push origin --tags
 
       - name: Create release
