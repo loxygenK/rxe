@@ -34,7 +34,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: ${{ steps.version-check.outputs.ver != '---' }}
         with:
-          tag_name: ${{ steps.version-check.outputs.ver }
+          tag_name: ${{ steps.version-check.outputs.ver }}
           token: ${{ secrets.PAT_TOKEN }}
 
       # - name: Push to Cargo
