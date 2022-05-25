@@ -1,4 +1,6 @@
-![Header image](https://user-images.githubusercontent.com/55672846/170165815-b3ec6814-70eb-4416-85a8-b390fddf8a74.png)
+![Header image (light theme)](https://user-images.githubusercontent.com/55672846/170167452-f9f3c718-dec5-46d5-8c36-a0ce10c5a678.png#gh-light-mode-only)
+![Header image (dark theme)](https://user-images.githubusercontent.com/55672846/170167458-9a03170c-0c7e-415d-b5d1-2a2172720780.png#gh-dark-mode-only)
+
 
 [![Clippy check](https://github.com/loxygenK/rxe/actions/workflows/clippy.yml/badge.svg?branch=main)](https://github.com/loxygenK/rxe/actions/workflows/clippy.yml)
 [![Test with coverage](https://github.com/loxygenK/rxe/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/loxygenK/rxe/actions/workflows/test.yml)
