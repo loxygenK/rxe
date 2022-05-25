@@ -16,7 +16,7 @@ jobs:
       - name: Check diff (files)
         id: version-check
         run: |
-          if [[ $(git diff main~1..main --unified=0 Cargo.lock) = *"version"* ]] then
+          if [[ "$(git diff main~1..main --unified=0 Cargo.lock)" = *"version"* ]] then
             echo "::set-output name=ver::$(cat Cargo.toml | grep "version" | head -n 1 | sed -E 's/^.*"(.+)".*$/\1/')"
           else
             echo "::set-output name=ver::---"
