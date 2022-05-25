@@ -39,8 +39,7 @@ jobs:
           tag_name: ${{ steps.version-check.outputs.ver }}
           token: ${{ secrets.PAT_TOKEN }}
 
-      # - name: Push to Cargo
-      #   run: |
-      #     cargo publish
-      #   env:
-      #     CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      - name: Push to Cargo
+        run: cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
