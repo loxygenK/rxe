@@ -1,7 +1,11 @@
 [package]
 name = "rxe"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
+license = "MIT"
+description = "Easily customizable command runner made with Rust 🦀"
+repository = "https://github.com/loxygenK/rxe"
+keyword = ["runner", "task"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
