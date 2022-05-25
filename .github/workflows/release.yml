@@ -28,8 +28,8 @@ jobs:
       - name: Create and push tag
         if: ${{ steps.version-check.outputs.ver != '---' }}
         run: |
-          git config user.name=loxygenK
-          git config user.email=me@loxygen.dev
+          git config user.name loxygenK
+          git config user.email me@loxygen.dev
           git tags ${{ steps.version-check.outputs.ver }}
           git push origin --tags
 
