@@ -28,7 +28,7 @@ jobs:
         run: |
           git config user.name loxygenK
           git config user.email me@loxygen.dev
-          git tags ${{ steps.version-check.outputs.ver }}
+          git tag ${{ steps.version-check.outputs.ver }}
           git push origin --tags
 
       - name: Create release
