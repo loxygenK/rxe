@@ -3,6 +3,8 @@ name: Release
 on:
   push:
     branch: main
+  pull_request:
+    branch: main
 
 jobs:
   release:
