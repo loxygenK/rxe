@@ -1,4 +1,4 @@
-# 🧑‍💻 `rxe`
+![Header image](https://user-images.githubusercontent.com/55672846/170165815-b3ec6814-70eb-4416-85a8-b390fddf8a74.png)
 
 [![Clippy check](https://github.com/loxygenK/rxe/actions/workflows/clippy.yml/badge.svg?branch=main)](https://github.com/loxygenK/rxe/actions/workflows/clippy.yml)
 [![Test with coverage](https://github.com/loxygenK/rxe/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/loxygenK/rxe/actions/workflows/test.yml)
